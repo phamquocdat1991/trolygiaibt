@@ -1,0 +1,6 @@
+{
+  "name": "Anh Giáo AI",
+  "description": "Trợ lý học tập đa môn thông minh cho học sinh Việt Nam, phát triển bởi Anh Giáo PHẠM QUỐC ĐẠT.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
