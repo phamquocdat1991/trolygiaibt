@@ -7,14 +7,36 @@ import { AiProvider } from './aiClientFactory';
 // =============================================================
 export const GEMINI_AVAILABLE_MODELS: ModelInfo[] = [
   {
-    id: 'gemini-3.6-flash',
-    name: 'Gemini 3.6 Flash',
+    id: 'gemini-3.8-flash',
+    name: 'Gemini 3.8 Flash',
     badge: 'Mặc định & Khuyên dùng',
     description:
-      'Model thế hệ mới nhất Stable/GA (21/07/2026). Mạnh nhất ở tác vụ đa bước, tối ưu hiệu năng và chi phí. Khuyên dùng cho tất cả môn học.',
+      'Model Flagship thế hệ mới nhất Stable/GA. Lập luận giải bài tập chuyên sâu, giải thích sư phạm chi tiết và chuẩn mực.',
     supportsMultimodal: true,
     supportsThinking: true,
     recommended: true,
+    provider: 'gemini',
+  },
+  {
+    id: 'gemini-3.7-flash',
+    name: 'Gemini 3.7 Flash',
+    badge: 'Dự phòng cao cấp',
+    description:
+      'Model thế hệ mới hỗ trợ Dynamic Thinking, cân bằng tối ưu giữa tốc độ và độ chuẩn xác bài giảng.',
+    supportsMultimodal: true,
+    supportsThinking: true,
+    recommended: false,
+    provider: 'gemini',
+  },
+  {
+    id: 'gemini-3.6-flash',
+    name: 'Gemini 3.6 Flash',
+    badge: 'Tương thích cao',
+    description:
+      'Bản Stable/GA ổn định cao ở tác vụ đa bước, tối ưu hiệu năng và chi phí. Khuyên dùng cho tất cả môn học.',
+    supportsMultimodal: true,
+    supportsThinking: true,
+    recommended: false,
     provider: 'gemini',
   },
   {
@@ -125,6 +147,8 @@ export const AGENT_PLATFORM_MODELS: ModelInfo[] = [
 // [model người dùng chọn] → 3.6-flash → 3.5-flash → 3.5-flash-lite → 3.1-flash-lite → 2.5-flash
 // =============================================================
 export const GEMINI_FALLBACK_MODELS = [
+  'gemini-3.8-flash',
+  'gemini-3.7-flash',
   'gemini-3.6-flash',
   'gemini-3.5-flash',
   'gemini-3.5-flash-lite',
@@ -137,8 +161,8 @@ export const AGENT_PLATFORM_FALLBACK_MODELS = [
   'gemini-2.5-flash-lite',
 ];
 
-// Model mặc định theo api.md: gemini-3.6-flash (Stable/GA 21/07/2026)
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.6-flash';
+// Model mặc định theo api.md: gemini-3.8-flash (Stable/GA Flagship)
+export const DEFAULT_GEMINI_MODEL = 'gemini-3.8-flash';
 export const DEFAULT_AGENT_PLATFORM_MODEL = 'gemini-2.5-flash';
 export const DEFAULT_MODEL = DEFAULT_GEMINI_MODEL;
 

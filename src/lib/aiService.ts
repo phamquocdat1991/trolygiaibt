@@ -156,10 +156,20 @@ export async function streamChatCompletion({
     // Tránh trường hợp partial text từ model trước bị ghép vào response model sau
     let accumulatedText = '';
 
+    const attemptTimeout = currentModel.includes('lite') ? 6000 : currentModel.includes('3.8') ? 10000 : 8000;
+    const attemptController = new AbortController();
+    let hasReceivedFirstChunk = false;
+    const firstChunkTimer = setTimeout(() => {
+      if (!hasReceivedFirstChunk) {
+        attemptController.abort(new Error(`Timeout sau ${attemptTimeout}ms khi chờ phản hồi đầu tiên`));
+      }
+    }, attemptTimeout);
+
     try {
       const ai = createGoogleAiClient(effectiveKey, provider);
       const contents = formatContents(messages);
       const config = buildConfig({ model: currentModel, provider, systemPrompt });
+      (config as any).abortSignal = attemptController.signal;
 
       const streamResponse = await ai.models.generateContentStream({
         model: currentModel,
@@ -168,6 +178,8 @@ export async function streamChatCompletion({
       });
 
       for await (const chunk of streamResponse) {
+        hasReceivedFirstChunk = true;
+        clearTimeout(firstChunkTimer);
         if (signal?.aborted) {
           throw new DOMException('Yêu cầu đã bị hủy bởi người dùng.', 'AbortError');
         }
@@ -177,6 +189,8 @@ export async function streamChatCompletion({
           onChunk(text);
         }
       }
+
+      clearTimeout(firstChunkTimer);
 
       // Hoàn thành thành công
       return {
@@ -270,11 +284,21 @@ export async function generateTextContent({
       const contents = [{ role: 'user', parts }];
       const config = buildConfig({ model: currentModel, provider, systemPrompt, responseMimeType });
 
-      const response = await ai.models.generateContent({
-        model: currentModel,
-        contents,
-        config,
-      });
+      const attemptTimeout = currentModel.includes('lite') ? 6000 : currentModel.includes('3.8') ? 10000 : 8000;
+      const attemptController = new AbortController();
+      const timer = setTimeout(() => attemptController.abort(new Error(`Timeout sau ${attemptTimeout}ms`)), attemptTimeout);
+      (config as any).abortSignal = attemptController.signal;
+
+      let response: any;
+      try {
+        response = await ai.models.generateContent({
+          model: currentModel,
+          contents,
+          config,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
 
       return {
         text: response.text || '',
