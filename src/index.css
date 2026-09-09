@@ -159,3 +159,5 @@ html:not(.dark) .pastel-app [class*="bg-gradient-to-tr"] { background-image:line
 @media(max-width:1050px) { .home-columns { grid-template-columns:1fr; } .home-side { grid-template-columns:1fr 1fr; } .home-settings { grid-column:1/-1; } .home-stats > div { padding:12px 9px; gap:8px; } }
 @media(max-width:767px) { .pastel-app header { flex-wrap:wrap; gap:6px; } .pastel-app header > div:last-child { width:100%; justify-content:space-between; } .dawn-copy { padding:22px; width:72%; } .dawn-art { object-position:65% center; } .home-stats { gap:6px; } .home-stats > div { flex-direction:column; align-items:flex-start; } .home-side { grid-template-columns:1fr; } .home-panel { padding:14px; } .dawn-copy h1 { font-size:28px; } }
 @media print { #app-sidebar, .learning-home { display:none!important; } .pastel-app, .pastel-app > div.flex-1 { height:auto!important; overflow:visible!important; display:block!important; } }
+html:not(.dark) #app-sidebar .text-slate-300 { color:#59586c; }
+html:not(.dark) #btn-new-chat span { color:white; }
