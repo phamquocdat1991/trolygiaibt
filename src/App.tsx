@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { LearningHome } from './components/LearningHome';
 import { Header } from './components/Header';
 import { Sidebar } from './components/Sidebar';
 import { ChatMessage } from './components/ChatMessage';
@@ -276,7 +277,8 @@ export default function App() {
   const handleSendMessage = async (
     text: string,
     attachment?: ImageAttachment,
-    mode: ChatMode = currentMode
+    mode: ChatMode = currentMode,
+    subject: string = currentSubject
   ) => {
     if ((!text.trim() && !attachment) || isGenerating) return;
 
@@ -296,7 +298,7 @@ export default function App() {
         id: `conv_${Date.now()}_${Math.random().toString(36).substring(7)}`,
         title: text ? text.slice(0, 32) + (text.length > 32 ? '...' : '') : 'Ảnh bài tập',
         messages: [],
-        subject: currentSubject,
+        subject,
         grade: currentGrade,
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -331,7 +333,7 @@ export default function App() {
               ...c,
               title: newTitle,
               messages: updatedMessages,
-              subject: currentSubject,
+              subject,
               grade: currentGrade,
               updatedAt: Date.now(),
             }
@@ -344,7 +346,7 @@ export default function App() {
     abortControllerRef.current = controller;
 
     const systemPrompt = buildSystemPrompt({
-      subject: currentSubject,
+      subject,
       grade: currentGrade,
       mode,
     });
@@ -359,7 +361,7 @@ export default function App() {
       content: '',
       timestamp: Date.now(),
       mode,
-      subject: currentSubject,
+      subject,
       grade: currentGrade,
     };
 
@@ -446,7 +448,7 @@ export default function App() {
       if (settings.loggingEnabled && settings.sheetsUrl) {
         logToGoogleSheets(settings.sheetsUrl, {
           timestamp: new Date().toISOString(),
-          subject: currentSubject,
+          subject,
           grade: currentGrade,
           mode,
           success: true,
@@ -468,7 +470,7 @@ export default function App() {
         content: `⚠️ Đã dừng do lỗi: ${parsedErr.message}`,
         timestamp: Date.now(),
         mode,
-        subject: currentSubject,
+        subject,
         grade: currentGrade,
         isError: true,
         errorCode: parsedErr.type,
@@ -493,7 +495,7 @@ export default function App() {
       if (settings.loggingEnabled && settings.sheetsUrl) {
         logToGoogleSheets(settings.sheetsUrl, {
           timestamp: new Date().toISOString(),
-          subject: currentSubject,
+          subject,
           grade: currentGrade,
           mode,
           success: false,
@@ -557,7 +559,7 @@ export default function App() {
   ];
 
   return (
-    <div className="flex h-screen-dvh w-full overflow-hidden bg-slate-50 dark:bg-slate-950 font-sans antialiased text-slate-900 dark:text-slate-100">
+    <div className="pastel-app flex h-screen-dvh w-full overflow-hidden bg-slate-50 dark:bg-slate-950 font-sans antialiased text-slate-900 dark:text-slate-100">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-2xl bg-slate-900/95 dark:bg-white/95 text-white dark:text-slate-900 text-xs font-bold shadow-xl backdrop-blur-md animate-in fade-in slide-in-from-top-2 border border-slate-700/40 dark:border-slate-300/40">
@@ -632,85 +634,21 @@ export default function App() {
         >
           {/* Welcome Screen when conversation is empty */}
           {(!activeConversation || activeConversation.messages.length === 0) && (
-            <div className="max-w-3xl mx-auto py-6 sm:py-10 flex flex-col items-center text-center space-y-5 sm:space-y-6">
-              {/* Avatar & Title */}
-              <div className="flex flex-col items-center space-y-3">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-gradient-to-tr from-emerald-600 via-teal-600 to-sky-600 text-white font-black text-2xl sm:text-3xl flex items-center justify-center shadow-md ring-4 ring-emerald-500/20">
-                  AG
-                </div>
-                <div className="space-y-1">
-                  <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-                    ANH GIÁO AI
-                  </h2>
-                  <p className="text-sm sm:text-base font-bold text-teal-700 dark:text-teal-400">
-                    Trợ lý học tập đa môn thông minh cho học sinh Việt Nam
-                  </p>
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Phát triển bởi <strong>Thầy PHẠM QUỐC ĐẠT</strong>
-                  </p>
-                </div>
-              </div>
-
-              {/* Status chips */}
-              <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
-                <span className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold shadow-2xs">
-                  📚 Môn:{' '}
-                  <strong>
-                    {SUBJECT_OPTIONS.find((s) => s.id === currentSubject)?.name || 'Đa môn'}
-                  </strong>
-                </span>
-                <span className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 font-semibold shadow-2xs">
-                  🎓 Cấp:{' '}
-                  <strong>
-                    {GRADE_OPTIONS.find((g) => g.id === currentGrade)?.name || 'Tất cả'}
-                  </strong>
-                </span>
-                <span className="px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200/80 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold shadow-2xs">
-                  ✨ Chế độ:{' '}
-                  {currentMode === 'hint'
-                    ? '💡 Gợi ý nhẹ'
-                    : currentMode === 'guided'
-                    ? '📖 Hướng dẫn từng bước'
-                    : '✅ Giải / Phân tích'}
-                </span>
-              </div>
-
-              {/* Starter Prompt Cards */}
-              <div className="w-full text-left space-y-2.5 pt-2">
-                <span className="text-xs font-semibold uppercase tracking-wider text-slate-400 pl-1">
-                  Gợi ý câu hỏi bài tập thường gặp:
-                </span>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  {starterPrompts.map((sp, idx) => {
-                    const Icon = sp.icon;
-                    return (
-                      <button
-                        key={idx}
-                        id={`starter-card-${idx}`}
-                        type="button"
-                        onClick={() => {
-                          setCurrentSubject(sp.subject);
-                          handleSendMessage(sp.prompt, undefined, currentMode);
-                        }}
-                        className="group flex flex-col p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 hover:border-emerald-400 dark:hover:border-emerald-600 hover:shadow-sm transition-all duration-150 text-left cursor-pointer active:scale-[0.98] motion-reduce:transform-none"
-                      >
-                        <div className="flex items-center gap-2 mb-2">
-                          <div className={`p-1.5 rounded-xl border ${sp.color}`}>
-                            <Icon className="w-4 h-4" />
-                          </div>
-                          <span className="font-bold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
-                            {sp.title}
-                          </span>
-                        </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
-                          {sp.prompt}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+            <LearningHome
+              conversations={conversations}
+              subject={currentSubject}
+              grade={currentGrade}
+              onSelectConversation={handleSelectConversation}
+              onOpenHistory={() => setHistoryOpen(true)}
+              onOpenSettings={() => setSettingsOpen(true)}
+              onSubjectChange={setCurrentSubject}
+              onGradeChange={setCurrentGrade}
+              starters={starterPrompts}
+              onStarter={(subject, prompt) => {
+                setCurrentSubject(subject);
+                handleSendMessage(prompt, undefined, currentMode, subject);
+              }}
+            />
           )}
 
           {/* Active Conversation Messages */}
@@ -862,3 +800,4 @@ export default function App() {
     </div>
   );
 }
+

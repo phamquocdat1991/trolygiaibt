@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Plus,
   MessageSquare,
@@ -45,6 +45,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenInstructions,
   onOpenAbout,
 }) => {
+  const [query, setQuery] = useState('');
+  const matchingConversations = conversations.filter(c => c.title.toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi')));
   return (
     <>
       {/* Mobile Backdrop with smooth transition */}
@@ -100,6 +102,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
         </div>
 
+        <div className="px-3 pb-2">
+          <label htmlFor="sidebar-search" className="sr-only">Tìm hội thoại</label>
+          <input id="sidebar-search" type="search" value={query} onChange={e => setQuery(e.target.value)} placeholder="Tìm bài đã học…" className="w-full rounded-xl border px-3 py-2 text-sm" />
+          {query && matchingConversations.length === 0 && <p className="p-2 text-sm">Không tìm thấy hội thoại.</p>}
+        </div>
         {/* Quick Subject & Grade Pickers */}
         <div className="px-3 py-2 space-y-2.5 border-b border-slate-800/80 shrink-0">
           <div>
@@ -153,7 +160,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <p className="text-[10px] mt-1 text-slate-500">Hãy đặt câu hỏi đầu tiên để lưu bài học!</p>
             </div>
           ) : (
-            conversations.map((conv) => {
+            matchingConversations.map((conv) => {
               const isSelected = conv.id === currentConversationId;
               return (
                 <div
@@ -239,3 +246,4 @@ export const Sidebar: React.FC<SidebarProps> = ({
     </>
   );
 };
+
