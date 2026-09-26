@@ -41,6 +41,10 @@
     - Hiển thị tổng lượt học tập toàn quốc, lượt hôm nay và lượt cá nhân với hiệu ứng số đếm mượt mà.
 11. **Tự Động Lưu Phiên Làm Việc (Session Persistence)**:
     - Tự động lưu trạng thái học tập vào `localStorage` mỗi 5 giây, có thông báo và khôi phục khi mở lại app.
+12. **Chế Độ Luyện Đề Trắc Nghiệm Tương Tác & Chấm Điểm Tự Động**:
+    - Làm bài trực tiếp trên hệ thống với đồng hồ đếm ngược, tự động chấm điểm thang 10 và xem lời giải phân tích từng câu.
+13. **Xuất Tệp Word (.doc / .docx) Chuẩn Thể Thức Sư Phạm**:
+    - Xuất đề thi và bài giảng ra file Microsoft Word chuẩn phông Times New Roman theo Nghị định 30/2020/NĐ-CP, sẵn sàng in ấn cho trường học.
 
 ---
 
@@ -48,7 +52,7 @@
 
 - **Frontend**: React 19 + TypeScript + Vite.
 - **Styling**: Tailwind CSS (Mobile-first, Dark/Light Mode, Safe-area iOS Safari).
-- **AI Engine**: `@google/genai` (Gemini 3.6 Flash, 3.5 Flash, 3.5 Flash Lite, 3.1 Pro, 2.5 Flash, Agent Platform API).
+- **AI Engine**: `@google/genai` (Gemini 3.8 Flash Mặc định Flagship, 3.7 Flash, 3.6 Flash, 3.5 Flash, 3.5 Flash Lite, Agent Platform API).
 - **Icons & Math**: `lucide-react`, `katex`.
 - **Hosting**: Vercel Static Hosting (`vercel.json` SPA Routing).
 
