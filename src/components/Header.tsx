@@ -15,6 +15,10 @@ import {
   ChevronDown,
   Key,
   CheckCircle2,
+  Atom,
+  Brain,
+  FileCheck,
+  FileEdit,
 } from 'lucide-react';
 import { Conversation } from '../types';
 import { VisitCounter } from './VisitCounter';
@@ -30,6 +34,10 @@ interface HeaderProps {
   hasApiKey: boolean;
   currentConversation: Conversation | null;
   onToast: (msg: string) => void;
+  onOpenExamGenerator?: () => void;
+  onOpenVirtualLab?: () => void;
+  onOpenFlashcards?: () => void;
+  onExportWord?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -43,6 +51,10 @@ export const Header: React.FC<HeaderProps> = ({
   hasApiKey,
   currentConversation,
   onToast,
+  onOpenExamGenerator,
+  onOpenVirtualLab,
+  onOpenFlashcards,
+  onExportWord,
 }) => {
   const [downloadMenuOpen, setDownloadMenuOpen] = useState(false);
   const downloadRef = useRef<HTMLDivElement>(null);
@@ -200,8 +212,46 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
       </div>
 
-      {/* Center: Visit Counter */}
-      <div className="hidden md:flex items-center justify-center shrink-0">
+      {/* Center: Quick Action Tools & Visit Counter */}
+      <div className="hidden lg:flex items-center gap-1.5 shrink-0">
+        {onOpenExamGenerator && (
+          <button
+            id="btn-header-exam-gen"
+            onClick={onOpenExamGenerator}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-blue-50 dark:bg-blue-950/60 hover:bg-blue-100 dark:hover:bg-blue-900/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
+            title="Biên soạn đề thi chuẩn GDPT 2018 (Công văn 7991)"
+          >
+            <FileEdit className="w-3.5 h-3.5" />
+            <span>Tạo đề thi GDPT</span>
+          </button>
+        )}
+
+        {onOpenVirtualLab && (
+          <button
+            id="btn-header-virtual-lab"
+            onClick={onOpenVirtualLab}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-teal-50 dark:bg-teal-950/60 hover:bg-teal-100 dark:hover:bg-teal-900/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
+            title="Mô phỏng Con lắc đơn, Parabol và Chuẩn độ pH"
+          >
+            <Atom className="w-3.5 h-3.5" />
+            <span>Thí nghiệm ảo</span>
+          </button>
+        )}
+
+        {onOpenFlashcards && (
+          <button
+            id="btn-header-flashcards"
+            onClick={onOpenFlashcards}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-amber-50 dark:bg-amber-950/60 hover:bg-amber-100 dark:hover:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold transition-all cursor-pointer active:scale-95 shadow-xs"
+            title="Bộ thẻ ghi nhớ Spaced Repetition (SM-2)"
+          >
+            <Brain className="w-3.5 h-3.5" />
+            <span>Flashcard</span>
+          </button>
+        )}
+      </div>
+
+      <div className="hidden md:flex lg:hidden items-center justify-center shrink-0">
         <VisitCounter compact={true} />
       </div>
 
@@ -267,7 +317,19 @@ export const Header: React.FC<HeaderProps> = ({
           </button>
 
           {downloadMenuOpen && (
-            <div className="absolute right-0 mt-1.5 w-52 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95">
+            <div className="absolute right-0 mt-1.5 w-56 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl py-1.5 z-50 animate-in fade-in zoom-in-95">
+              <button
+                id="btn-export-word"
+                onClick={() => {
+                  setDownloadMenuOpen(false);
+                  if (onExportWord) onExportWord();
+                  else handleDownloadMarkdown();
+                }}
+                className="w-full flex items-center gap-2.5 px-3.5 py-2.5 text-xs font-semibold text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 cursor-pointer text-left transition-colors"
+              >
+                <FileText className="w-4 h-4 text-blue-600" />
+                <span>Xuất file Word (.doc) chuẩn</span>
+              </button>
               <button
                 id="btn-export-markdown"
                 onClick={handleDownloadMarkdown}

@@ -82,3 +82,81 @@ export interface AppError {
   userHelp: string;
   details?: string;
 }
+
+// ==========================================
+// CẤU TRÚC DỮ LIỆU BỘ THẺ FLASHCARD & THUẬT TOÁN SM-2
+// ==========================================
+export interface Flashcard {
+  id: string;
+  front: string;
+  back: string;
+  subject: string;
+  grade: string;
+  createdAt: number;
+  // SM-2 Spaced Repetition Parameters
+  repetitions: number;
+  interval: number; // số ngày đến lần ôn tập tiếp theo
+  easeFactor: number; // hệ số dễ nhớ (mặc định 2.5)
+  nextReviewDate: number; // timestamp ms
+}
+
+// ==========================================
+// CẤU TRÚC DỮ LIỆU ĐỀ THI GDPT 2018 (CV 7991)
+// ==========================================
+export type ExamType = '15min' | '45min' | 'midterm' | 'semester' | 'national_exam';
+
+export interface ExamConfig {
+  grade: string;
+  subject: string;
+  durationMinutes: number;
+  topic: string;
+  examType: ExamType;
+  cognitiveLevel: 'standard' | 'advanced' | 'olympic';
+}
+
+export interface QuizOption {
+  key: 'A' | 'B' | 'C' | 'D';
+  text: string;
+}
+
+export interface QuizSubItem {
+  key: 'a' | 'b' | 'c' | 'd';
+  text: string;
+  correctValue: boolean;
+}
+
+export interface QuizQuestion {
+  id: string;
+  number: number;
+  section: 'part1' | 'part2' | 'part3' | 'part4';
+  title?: string;
+  questionText: string;
+  options?: QuizOption[];
+  correctAnswer?: string;
+  subItems?: QuizSubItem[];
+  shortAnswerExpected?: string;
+  explanation?: string;
+}
+
+export interface ParsedExam {
+  title: string;
+  grade: string;
+  subject: string;
+  duration: number;
+  rawContent: string;
+  matrix?: string;
+  questions: QuizQuestion[];
+}
+
+export interface UserQuizAnswers {
+  part1: Record<string, string>; // questionId -> 'A' | 'B' | 'C' | 'D'
+  part2: Record<string, Record<string, boolean>>; // questionId -> subKey -> boolean
+  part3: Record<string, string>; // questionId -> text
+}
+
+export interface QuizResultSummary {
+  totalScore: number; // Thang 10
+  totalQuestions: number;
+  correctCount: number;
+  timeSpentSeconds: number;
+}

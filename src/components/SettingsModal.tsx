@@ -86,7 +86,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
     if (!isValidGoogleAiApiKey(activeKey)) {
       setKeyTestStatus({
         success: false,
-        msg: 'Định dạng key không đúng (phải bắt đầu bằng AIzaSy... hoặc AQ...).',
+        msg: 'Định dạng khóa API không hợp lệ (không được để trống hoặc chứa khoảng trắng).',
       });
       return;
     }

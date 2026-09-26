@@ -8,6 +8,9 @@ import {
   Info,
   X,
   Sparkles,
+  FileEdit,
+  Atom,
+  Brain,
 } from 'lucide-react';
 import { Conversation } from '../types';
 import { SUBJECT_OPTIONS, GRADE_OPTIONS } from '../lib/prompts';
@@ -27,6 +30,9 @@ interface SidebarProps {
   onOpenSettings: () => void;
   onOpenInstructions: () => void;
   onOpenAbout: () => void;
+  onOpenExamGenerator?: () => void;
+  onOpenVirtualLab?: () => void;
+  onOpenFlashcards?: () => void;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -44,6 +50,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenSettings,
   onOpenInstructions,
   onOpenAbout,
+  onOpenExamGenerator,
+  onOpenVirtualLab,
+  onOpenFlashcards,
 }) => {
   const [query, setQuery] = useState('');
   const matchingConversations = conversations.filter(c => c.title.toLocaleLowerCase('vi').includes(query.trim().toLocaleLowerCase('vi')));
@@ -100,6 +109,48 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <Plus className="w-4 h-4" />
             <span>Tạo cuộc trò chuyện mới</span>
           </button>
+        </div>
+
+        {/* Công Cụ Sư Phạm Đặc Biệt */}
+        <div className="px-3 pb-2 space-y-1.5 shrink-0">
+          {onOpenExamGenerator && (
+            <button
+              onClick={() => {
+                onOpenExamGenerator();
+                if (window.innerWidth < 768) onClose();
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-blue-300 hover:text-white bg-blue-950/40 hover:bg-blue-900/60 border border-blue-900/60 transition-all cursor-pointer text-left"
+            >
+              <FileEdit className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+              <span>Tạo đề thi GDPT 2018</span>
+            </button>
+          )}
+
+          {onOpenVirtualLab && (
+            <button
+              onClick={() => {
+                onOpenVirtualLab();
+                if (window.innerWidth < 768) onClose();
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-teal-300 hover:text-white bg-teal-950/40 hover:bg-teal-900/60 border border-teal-900/60 transition-all cursor-pointer text-left"
+            >
+              <Atom className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              <span>Phòng thí nghiệm ảo</span>
+            </button>
+          )}
+
+          {onOpenFlashcards && (
+            <button
+              onClick={() => {
+                onOpenFlashcards();
+                if (window.innerWidth < 768) onClose();
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-amber-300 hover:text-white bg-amber-950/40 hover:bg-amber-900/60 border border-amber-900/60 transition-all cursor-pointer text-left"
+            >
+              <Brain className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <span>Thẻ Flashcard (SM-2)</span>
+            </button>
+          )}
         </div>
 
         <div className="px-3 pb-2">

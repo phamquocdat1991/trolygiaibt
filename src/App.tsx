@@ -10,12 +10,18 @@ import { AboutModal } from './components/AboutModal';
 import { HistoryModal } from './components/HistoryModal';
 import { ImagePreviewModal } from './components/ImagePreviewModal';
 import { OnboardingKeyModal } from './components/OnboardingKeyModal';
+import { VirtualLabModal } from './components/VirtualLabModal';
+import { FlashcardModal } from './components/FlashcardModal';
+import { ExamGeneratorModal } from './components/ExamGeneratorModal';
+import { InteractiveQuizModal } from './components/InteractiveQuizModal';
+import { exportConversationToWord } from './lib/docxExport';
 import {
   Conversation,
   ChatMessage as ChatMessageType,
   ChatMode,
   ImageAttachment,
   UserSettings,
+  ParsedExam,
 } from './types';
 import {
   loadSettings,
@@ -82,6 +88,11 @@ export default function App() {
   const [historyOpen, setHistoryOpen] = useState<boolean>(false);
   const [previewImageUrl, setPreviewImageUrl] = useState<string | null>(null);
   const [clearChatConfirmOpen, setClearChatConfirmOpen] = useState<boolean>(false);
+  const [virtualLabOpen, setVirtualLabOpen] = useState<boolean>(false);
+  const [flashcardOpen, setFlashcardOpen] = useState<boolean>(false);
+  const [examGeneratorOpen, setExamGeneratorOpen] = useState<boolean>(false);
+  const [quizModalOpen, setQuizModalOpen] = useState<boolean>(false);
+  const [activeExam, setActiveExam] = useState<ParsedExam | null>(null);
 
   const [onboardingOpen, setOnboardingOpen] = useState<boolean>(() => {
     const s = loadSettings();
@@ -583,6 +594,9 @@ export default function App() {
         onOpenSettings={() => setSettingsOpen(true)}
         onOpenInstructions={() => setInstructionsOpen(true)}
         onOpenAbout={() => setAboutOpen(true)}
+        onOpenExamGenerator={() => setExamGeneratorOpen(true)}
+        onOpenVirtualLab={() => setVirtualLabOpen(true)}
+        onOpenFlashcards={() => setFlashcardOpen(true)}
       />
 
       {/* Main Content Area */}
@@ -605,6 +619,17 @@ export default function App() {
           hasApiKey={Boolean(settings.apiKey)}
           currentConversation={activeConversation}
           onToast={showToast}
+          onOpenExamGenerator={() => setExamGeneratorOpen(true)}
+          onOpenVirtualLab={() => setVirtualLabOpen(true)}
+          onOpenFlashcards={() => setFlashcardOpen(true)}
+          onExportWord={() => {
+            if (activeConversation && activeConversation.messages.length > 0) {
+              exportConversationToWord(activeConversation);
+              showToast('Đã xuất bài học sang tệp Word (.doc) chuẩn.');
+            } else {
+              showToast('Chưa có nội dung bài học để xuất Word.');
+            }
+          }}
         />
 
         {/* Saved Session Notification Banner */}
@@ -648,6 +673,9 @@ export default function App() {
                 setCurrentSubject(subject);
                 handleSendMessage(prompt, undefined, currentMode, subject);
               }}
+              onOpenExamGenerator={() => setExamGeneratorOpen(true)}
+              onOpenVirtualLab={() => setVirtualLabOpen(true)}
+              onOpenFlashcards={() => setFlashcardOpen(true)}
             />
           )}
 
@@ -796,6 +824,40 @@ export default function App() {
       <ImagePreviewModal
         imageUrl={previewImageUrl}
         onClose={() => setPreviewImageUrl(null)}
+      />
+
+      {/* Virtual Lab Modal */}
+      <VirtualLabModal
+        isOpen={virtualLabOpen}
+        onClose={() => setVirtualLabOpen(false)}
+        onToast={showToast}
+      />
+
+      {/* Flashcard SM-2 Modal */}
+      <FlashcardModal
+        isOpen={flashcardOpen}
+        onClose={() => setFlashcardOpen(false)}
+        onToast={showToast}
+      />
+
+      {/* Exam Generator Modal */}
+      <ExamGeneratorModal
+        isOpen={examGeneratorOpen}
+        onClose={() => setExamGeneratorOpen(false)}
+        settings={settings}
+        onStartQuiz={(exam) => {
+          setActiveExam(exam);
+          setQuizModalOpen(true);
+        }}
+        onToast={showToast}
+      />
+
+      {/* Interactive Quiz Runner Modal */}
+      <InteractiveQuizModal
+        isOpen={quizModalOpen}
+        onClose={() => setQuizModalOpen(false)}
+        exam={activeExam}
+        onToast={showToast}
       />
     </div>
   );

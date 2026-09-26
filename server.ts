@@ -48,7 +48,7 @@ app.post('/api/test-key', async (req: Request, res: Response) => {
       },
     });
 
-    const modelToUse = model || process.env.DEFAULT_GEMINI_MODEL || 'gemini-3.7-flash';
+    const modelToUse = model || process.env.DEFAULT_GEMINI_MODEL || 'gemini-3.8-flash';
 
     const response = await ai.models.generateContent({
       model: modelToUse,
@@ -109,7 +109,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       },
     });
 
-    const selectedModel = model || process.env.DEFAULT_GEMINI_MODEL || 'gemini-3.7-flash';
+    const selectedModel = model || process.env.DEFAULT_GEMINI_MODEL || 'gemini-3.8-flash';
 
     // Format conversation history for Gemini API contents
     const contents = messages.map((m: { role: string; content: string; attachment?: { data: string; mimeType: string } }) => {
@@ -133,9 +133,10 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       return { role, parts };
     });
 
-    const config: Record<string, unknown> = {
-      temperature: 0.4,
-    };
+    const config: Record<string, unknown> = {};
+    if (!selectedModel.startsWith('gemini-3')) {
+      config.temperature = 0.4;
+    }
     if (systemPrompt) {
       config.systemInstruction = systemPrompt;
     }
@@ -151,17 +152,15 @@ app.post('/api/chat', async (req: Request, res: Response) => {
       const errMsg = primaryErr instanceof Error ? primaryErr.message : String(primaryErr);
       console.warn(`[Model ${selectedModel} failed]:`, errMsg);
 
-      // Fallback to gemini-3.7-flash if selected model was different and failed
-      if (selectedModel !== 'gemini-3.7-flash') {
-        console.log('[Fallback] Trying gemini-3.7-flash as fallback...');
-        response = await ai.models.generateContent({
-          model: 'gemini-3.7-flash',
-          contents,
-          config,
-        });
-      } else {
-        throw primaryErr;
-      }
+      // Fallback chain theo chuẩn api.md
+      const fallbacks = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-2.5-flash'];
+      const nextFallback = fallbacks.find((m) => m !== selectedModel) || 'gemini-3.7-flash';
+      console.log(`[Fallback] Trying ${nextFallback} as fallback...`);
+      response = await ai.models.generateContent({
+        model: nextFallback,
+        contents,
+        config,
+      });
     }
 
     const textOutput = response?.text || 'Anh Giáo chưa nhận được câu trả lời từ hệ thống. Em vui lòng thử lại nhé!';
@@ -229,7 +228,7 @@ app.post('/api/chat-stream', async (req: Request, res: Response) => {
       },
     });
 
-    const selectedModel = model || process.env.DEFAULT_GEMINI_MODEL || 'gemini-3.7-flash';
+    const selectedModel = model || process.env.DEFAULT_GEMINI_MODEL || 'gemini-3.8-flash';
 
     const contents = messages.map((m: { role: string; content: string; attachment?: { data: string; mimeType: string } }) => {
       const role = m.role === 'assistant' ? 'model' : 'user';
@@ -251,9 +250,10 @@ app.post('/api/chat-stream', async (req: Request, res: Response) => {
       return { role, parts };
     });
 
-    const config: Record<string, unknown> = {
-      temperature: 0.4,
-    };
+    const config: Record<string, unknown> = {};
+    if (!selectedModel.startsWith('gemini-3')) {
+      config.temperature = 0.4;
+    }
     if (systemPrompt) {
       config.systemInstruction = systemPrompt;
     }
@@ -266,16 +266,14 @@ app.post('/api/chat-stream', async (req: Request, res: Response) => {
         config,
       });
     } catch (primaryErr: unknown) {
-      if (selectedModel !== 'gemini-3.7-flash') {
-        console.warn(`[Stream Model ${selectedModel} failed, trying fallback]:`, primaryErr);
-        streamResponse = await ai.models.generateContentStream({
-          model: 'gemini-3.7-flash',
-          contents,
-          config,
-        });
-      } else {
-        throw primaryErr;
-      }
+      const fallbacks = ['gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-3.6-flash', 'gemini-2.5-flash'];
+      const nextFallback = fallbacks.find((m) => m !== selectedModel) || 'gemini-3.7-flash';
+      console.warn(`[Stream Model ${selectedModel} failed, trying fallback ${nextFallback}]:`, primaryErr);
+      streamResponse = await ai.models.generateContentStream({
+        model: nextFallback,
+        contents,
+        config,
+      });
     }
 
     for await (const chunk of streamResponse) {
